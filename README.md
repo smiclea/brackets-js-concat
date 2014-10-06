@@ -35,5 +35,4 @@ Right-click on this file to manually concatenate the files in the list, useful i
 <i>0.0.1</i>
 <ul>
 <li>First release</li>
-<li>Fixed: http-server process doesn't always close when closing or reloading Brackets</li>
 </ul>
