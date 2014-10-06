@@ -68,7 +68,7 @@ define(function (require, exports, module) {
 			
 			fileQueue--;
 			if (fileQueue >= 0) {
-				readFile(fileList[fileQueue], readInto, callback);
+				readFile(fileList[fileList.length - 1 - fileQueue], readInto, callback);
 			} else {
 				callback(readInto);
 			}
@@ -78,11 +78,12 @@ define(function (require, exports, module) {
 	var getFileListContents = function (callback) {
 		var buildContent = '';
 		fileQueue = fileList.length - 1;
-		readFile(fileList[fileQueue], buildContent, callback);
+		readFile(fileList[fileList.length - 1 - fileQueue], buildContent, callback);
 	};
 	 
 	var writeBuildFile = function () {
 		getFileListContents(function (data) {
+			buildFile.unlink();
 			buildFile.write(data, function (error, stats) {
 				if (error) {
 					console.error('[brackets-js-concat] Error writing build file: ' + error);
