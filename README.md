@@ -28,7 +28,7 @@ output = build/build-v0.0.1.js;
 
 Right-click on this file to manually concatenate the files in the list, useful if 'concatOnSave' is false.
 
-![](http://cdn.sstatic.net/stackoverflow/img/sprites.png?v=3c6263c3453b)
+![](https://raw.githubusercontent.com/smiclea/brackets-js-concat/master/screenshot.png)
 
 <b>Change log</b>
 
