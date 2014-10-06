@@ -1,0 +1,15 @@
+// THIS file should be placed in project root
+
+// if true, concatenates the files in the list when saving one of them or when saving this file
+concatOnSave = false;
+
+// the output path and file name of the concatenated file
+output = build/build-v0.0.1.js;
+
+// list of files to concatenate
+-views/mainView.js;
+-views/leftView.js;
+-views/components/widget.js;
+-model/Car.js;
+-model/Phone.js;
+-start.js;
