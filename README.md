@@ -36,7 +36,7 @@ Planned (not yet implemented) features:
 
 <b>Change log</b>
 
-<i>0.0.1</i>
+<i>0.0.2</i>
 <ul>
 <li>First release</li>
 </ul>
