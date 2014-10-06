@@ -20,6 +20,7 @@ define(function (require, exports, module) {
 	var fileList = [];
 	var buildFile;
 	var fileQueue;
+	var time;
 	
 	var parseConfigFile = function (data) {
 		var concatOnSaveExp = /\s*concatOnSave\s*=\s*true\s*;/;
@@ -88,13 +89,15 @@ define(function (require, exports, module) {
 				if (error) {
 					console.error('[brackets-js-concat] Error writing build file: ' + error);
 				} else {
-					ProjectManager.refreshFileTree();
+					//ProjectManager.refreshFileTree();
+					console.log('[brackets-js-concat] ' + new Date().toLocaleTimeString() + ' Concatenation done succesfully! Duration: ' + (new Date().getTime() - time) + ' ms.');
 				}
 			});
 		});
 	};
 	
 	var concatFiles = function () {
+		time = new Date().getTime();
 		buildFile = FileSystem.getFileForPath(ProjectManager.getProjectRoot().fullPath + outputFile);
 		
 		FileSystem.resolve(buildFile.fullPath, function (error, fileSystemEntry, status) {
@@ -160,24 +163,17 @@ define(function (require, exports, module) {
 		$(DocumentManager).on('documentSaved', function () {
 			var document = DocumentManager.getCurrentDocument();
 			
-			if (fileIsWatched(document.file.fullPath)) {
-				loadConfigFile(function () {
-					if (concatOnSave) {
-						concatFiles();
-					}
-				});
-			}
+			loadConfigFile(function () {
+				if (concatOnSave && fileIsWatched(document.file.fullPath)) {
+					concatFiles();
+				}
+			});
 		});
 		
 	};
 	
     AppInit.appReady(function () {
-		loadConfigFile(function () {
-			if (concatOnSave) {
-				watchFiles();
-			}
-		});
-		
+		watchFiles();
 		addContextMenu();
     });
 
