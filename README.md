@@ -28,7 +28,7 @@ Right-click on 'js.concat' to manually concatenate the files in the list, useful
 
 <b>Wildcard support</b>
 * if the path to file ends with '/' character, all the files in that folder will be concatenated
-* if the path to file ends with '*' followed by a group of characters, only files ending in that group of characters will be concatenating (ex.: views/*.js matches all the files in views folder ending with '.js' i.e. all javascript files)
+* if the path to file ends with '\*' followed by a group of characters, only files ending in that group of characters will be concatenating (ex.: views/*.js matches all the files in views folder ending with '.js' i.e. all javascript files)
 
 ![](https://raw.githubusercontent.com/smiclea/brackets-js-concat/master/screenshot.png)
 
