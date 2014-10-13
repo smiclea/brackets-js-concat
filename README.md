@@ -19,24 +19,32 @@ output = build/build-v0.0.1.js;
 
 // the list of files (paths relative to project root) to concatenate
 -views/mainView.js;
--views/leftView.js;
--views/components/widget.js;
--model/Car.js;
--model/Phone.js;
+-views/components/;
+-model/*.js;
 -main.js;
 ```
 
 Right-click on 'js.concat' to manually concatenate the files in the list, useful if 'concatOnSave' is false.
 
-![](https://raw.githubusercontent.com/smiclea/brackets-js-concat/master/screenshot.png)
+<b>Wildcard support</b>
+* if the path to file ends with '/' character, all the files in that folder will be concatenated
+* if the path to file ends with '*' followed by a group of characters, only files ending in that group of characters will be concatenating (ex.: views/*.js matches all the files in views folder ending with '.js' i.e. all javascript files)
 
-Planned (not yet implemented) features:
-* wild card support in the list of files
-* grouping files for multiple outputs
+![](https://raw.githubusercontent.com/smiclea/brackets-js-concat/master/screenshot.png)
 
 <b>Change log</b>
 
+<i>0.1.0</i>
+<ul>
+<li>Added support for wildcards</li>
+</ul>
+
 <i>0.0.2</i>
+<ul>
+<li>Small bug-fixes</li>
+</ul>
+
+<i>0.0.1</i>
 <ul>
 <li>First release</li>
 </ul>

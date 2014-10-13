@@ -7,9 +7,6 @@ concatOnSave = false;
 output = build/build-v0.0.1.js;
 
 // list of files to concatenate
--views/mainView.js;
--views/leftView.js;
--views/components/widget.js;
--model/Car.js;
--model/Phone.js;
--start.js;
+-views/.*js;
+-views/components/;
+-main.js;

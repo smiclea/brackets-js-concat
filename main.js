@@ -21,8 +21,83 @@ define(function (require, exports, module) {
 	var buildFile;
 	var fileQueue;
 	var time;
+	var direcoriesList = [];
+	var WILD_CARD_EXP = /(.*)\*(.*)/;
 	
-	var parseConfigFile = function (data) {
+	var addDirectoryToFileList = function (callback) {
+		var path = direcoriesList.shift();
+		var wildMatch = WILD_CARD_EXP.exec(path);
+		
+		if (wildMatch) {
+			path = wildMatch[1];
+		}
+		
+		var directory = FileSystem.getDirectoryForPath(ProjectManager.getProjectRoot().fullPath + path);
+		directory.getContents(function (error, entries, stats, statsErrors) {
+			var i;
+			
+			for (i = 0; i < entries.length; i++) {
+				var relativePath = entries[i].fullPath.substr(ProjectManager.getProjectRoot().fullPath.length);
+				
+				if (entries[i].isFile) {
+					var fileName = entries[i].name;
+					
+					if (wildMatch && fileName.indexOf(wildMatch[2]) === fileName.length - wildMatch[2].length) {
+						fileList.push(relativePath);
+					} else if (!wildMatch) {
+						fileList.push(relativePath);
+					}
+				} else if (entries[i].isDirectory) {
+					var wildCard = (wildMatch) ? '*' + wildMatch[2] : '';
+					direcoriesList.push(relativePath + wildCard);
+				}
+			}
+			
+			if (direcoriesList.length > 0) {
+				addDirectoryToFileList(callback);
+			} else {
+				callback();
+			}
+		});
+	};
+	
+	var removeFileDuplicates = function () {
+		var i, buffer = {}, newFileList = [];
+		
+		for (i = 0; i < fileList.length; i++) {
+			if (!buffer[fileList[i]]) {
+				buffer[fileList[i]] = 1;
+				newFileList.push(fileList[i]);
+			}
+		}
+		
+		fileList = newFileList;
+	};
+	
+	var checkForWildCards = function (callback) {
+		var i;
+		direcoriesList = [];
+		
+		for (i = 0; i < fileList.length; i++) {
+			if (/\/$/.exec(fileList[i]) || WILD_CARD_EXP.exec(fileList[i])) {
+				direcoriesList.push(fileList[i]);
+			}
+		}
+		
+		for (i = fileList.length - 1; i >= 0; i--) {
+			if (/\/$/.exec(fileList[i]) || WILD_CARD_EXP.exec(fileList[i])) {
+				fileList.splice(i, 1);
+			}
+		}
+		
+		if (direcoriesList.length > 0) {
+			addDirectoryToFileList(callback);
+		} else {
+			callback();
+		}
+	};
+	
+	var parseConfigFile = function (data, callback) {
 		var concatOnSaveExp = /\s*concatOnSave\s*=\s*true\s*;/;
 		var outputFileExp = /\s*output\s*=\s*(.*)\s*;/;
 		var outputFilePath = outputFileExp.exec(data);
@@ -44,6 +119,11 @@ define(function (require, exports, module) {
 		while ((file = fileListExp.exec(data)) !== null) {
 			fileList.push(file[1]);
 		}
+		
+		checkForWildCards(function () {
+			removeFileDuplicates();
+			callback();
+		});
 	};
 	
 	var loadConfigFile = function (callback) {
@@ -52,8 +132,7 @@ define(function (require, exports, module) {
 			if (error) {
 				console.log('[brackets-js-concat] Error loading project config file (' + CONFIG_FILE + '): ' + error);
 			} else {
-				parseConfigFile(data);
-				callback();
+				parseConfigFile(data, callback);
 			}
 		});
 	};

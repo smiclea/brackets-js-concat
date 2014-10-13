@@ -1,7 +1,7 @@
 {
   "name": "brackets-js-concat",
   "title": "Brackets JS Concat",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Concatenates a list of files into one big file",
   "homepage": "https://github.com/smiclea/brackets-js-concat",
   "author": "Sergiu Miclea <miclea.sergiu@gmail.com> (https://github.com/smiclea)",
