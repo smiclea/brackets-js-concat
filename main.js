@@ -13,9 +13,14 @@ define(function (require, exports, module) {
 	var Menus = brackets.getModule("command/Menus");
 	var CommandManager = brackets.getModule("command/CommandManager");
 	var DocumentManager = brackets.getModule("document/DocumentManager");
+	var NodeConnection = brackets.getModule("utils/NodeConnection");
+	var ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
 	
 	var contextMenu = Menus.getContextMenu(Menus.ContextMenuIds.PROJECT_MENU);
+	var nodeConnection = new NodeConnection();
+	
 	var concatOnSave;
+	var minify;
 	var outputFile;
 	var fileList = [];
 	var buildFile;
@@ -99,6 +104,7 @@ define(function (require, exports, module) {
 	
 	var parseConfigFile = function (data, callback) {
 		var concatOnSaveExp = /\s*concatOnSave\s*=\s*true\s*;/;
+		var minifyExp = /\s*minify\s*=\s*true\s*;/;
 		var outputFileExp = /\s*output\s*=\s*(.*)\s*;/;
 		var outputFilePath = outputFileExp.exec(data);
 		var fileListExp = /^\s*-\s*(.*)\s*;/gm;
@@ -107,6 +113,7 @@ define(function (require, exports, module) {
 		outputFile = 'js-concat-build.js';
 		concatOnSave = false;
 		fileList = [];
+		minify = false;
 		
 		if (outputFilePath) {
 			outputFile = outputFilePath[1];
@@ -114,6 +121,10 @@ define(function (require, exports, module) {
 		
 		if (concatOnSaveExp.exec(data)) {
 			concatOnSave = true;
+		}
+		
+		if (minifyExp.exec(data)) {
+			minify = true;
 		}
 		
 		while ((file = fileListExp.exec(data)) !== null) {
@@ -129,9 +140,8 @@ define(function (require, exports, module) {
 	var loadConfigFile = function (callback) {
 		var file = FileSystem.getFileForPath(ProjectManager.getProjectRoot().fullPath + CONFIG_FILE);
 		file.read(function (error, data, status) {
-			if (error) {
-				console.log('[brackets-js-concat] Error loading project config file (' + CONFIG_FILE + '): ' + error);
-			} else {
+			// console.log('[brackets-js-concat] Error loading project config file (' + CONFIG_FILE + '): ' + error);
+			if (!error) {
 				parseConfigFile(data, callback);
 			}
 		});
@@ -160,7 +170,66 @@ define(function (require, exports, module) {
 		fileQueue = fileList.length - 1;
 		readFile(fileList[fileList.length - 1 - fileQueue], buildContent, callback);
 	};
-	 
+	
+	var connect = function () {
+		var connectionPromise = nodeConnection.connect(true);
+
+		connectionPromise.fail(function (err) {
+			console.error("[brackets-js-concat] failed to connect to node: " + err);
+		});
+
+		return connectionPromise;
+	};
+	
+	var loadJSUglifierDomain = function () {
+		var path = ExtensionUtils.getModulePath(module, "node/JSUglifierDomain");
+		var loadPromise = nodeConnection.loadDomains([path], true);
+
+		loadPromise.fail(function (err) {
+			console.log("[brackets-js-concat] failed to load jsuglifier domain: " + err);
+		});
+
+		return loadPromise;
+	};
+	
+	var successLog = function () {
+		console.log('[brackets-js-concat] ' + new Date().toLocaleTimeString() + ' Concatenation done succesfully! Duration: ' + (new Date().getTime() - time) + ' ms. Output: ' + buildFile.fullPath);
+	};
+	
+	var writyUglyBuild = function (content) {
+		buildFile.unlink();
+		buildFile.write(content, function (error, stats) {
+			if (error) {
+				console.error('[brackets-js-concat] Error minifying build file: ' + error);
+			} else {
+				successLog();
+			}
+		});
+	};
+	
+	var uglifyFileContent = function (filePath) {
+		if (minify) {
+			connect().done(function () {
+				loadJSUglifierDomain().done(function () {
+					var modPath = ExtensionUtils.getModulePath(module);
+					nodeConnection.domains['uglify-js'].start(filePath, modPath).fail(function (msg) {
+						if (msg.data) {
+							writyUglyBuild(msg.data);
+						} else if (msg.error) {
+							console.error('[brackets-js-concat] uglify-js error: ' + msg.error);
+						}
+					}).done(function (msg) {
+						if (msg.data) {
+							writyUglyBuild(msg.data);
+						}
+					});
+				});
+			});
+		} else {
+			successLog();
+		}
+	};
+	
 	var writeBuildFile = function () {
 		getFileListContents(function (data) {
 			buildFile.unlink();
@@ -168,8 +237,7 @@ define(function (require, exports, module) {
 				if (error) {
 					console.error('[brackets-js-concat] Error writing build file: ' + error);
 				} else {
-					//ProjectManager.refreshFileTree();
-					console.log('[brackets-js-concat] ' + new Date().toLocaleTimeString() + ' Concatenation done succesfully! Duration: ' + (new Date().getTime() - time) + ' ms.');
+					uglifyFileContent(buildFile.fullPath);
 				}
 			});
 		});

@@ -1,8 +1,8 @@
 {
   "name": "brackets-js-concat",
   "title": "Brackets JS Concat",
-  "version": "0.1.0",
-  "description": "Concatenates a list of files into one big file",
+  "version": "1.0.0",
+  "description": "Concatenates a list of files into one big file. NEW: minify the concatenated file",
   "homepage": "https://github.com/smiclea/brackets-js-concat",
   "author": "Sergiu Miclea <miclea.sergiu@gmail.com> (https://github.com/smiclea)",
   "license": "MIT",
@@ -11,7 +11,11 @@
     "js",
 	"concatenate",
 	"concatenation",
-  	"build"
+  	"build",
+	"minify",
+	"uglify",
+	"uglify-js",
+	"uglifyjs"
   ],
   "engines": {
     "brackets": ">=0.32.0"

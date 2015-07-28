@@ -5,6 +5,7 @@ Concatenates a list of files into one big file, useful when using only one javas
 
 * concatOnSave - if true, concatenates the list of files when saving one of them or when saving 'js.concat' itself. Otherwise you have to always right click 'js.concat' -> 'Concatenate files'
 * output - the path (relative to project root, directories will be created if necessary) where the big concatenated file should be placed
+* minify - if true, minifies the concatenated file
 * -pathToFile; - the list of files (paths relative to project root) to concatenate
 
 Here is an example of a 'js.concat' file:
@@ -16,6 +17,9 @@ concatOnSave = true;
 
 // the output path of the concatenated file, directories will be created if necessary
 output = build/build-v0.0.1.js;
+
+// if true, minifies the concatenated file
+minify = true;
 
 // the list of files (paths relative to project root) to concatenate
 -views/mainView.js;
@@ -33,6 +37,11 @@ Right-click on 'js.concat' to manually concatenate the files in the list, useful
 ![](https://raw.githubusercontent.com/smiclea/brackets-js-concat/master/screenshot.png)
 
 <b>Change log</b>
+
+<i>1.0.0</i>
+<ul>
+<li>Added option to minify the concatenated file</li>
+</ul>
 
 <i>0.1.0</i>
 <ul>
