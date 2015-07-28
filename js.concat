@@ -4,7 +4,7 @@
 concatOnSave = true;
 
 // the output path and file name of the concatenated file
-output = test/build-v0.0.1.js;
+output = build/build-v0.0.1.js;
 
 // if true, minifies the concatenated file
 minify = true;
@@ -13,4 +13,4 @@ minify = true;
 -views/mainView.js;
 -views/components/;
 -model/*.js;
--mainView.js;
+-main.js;
